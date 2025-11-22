@@ -4,7 +4,7 @@ import cv2
 import time
 import emailing
 import glob
-
+from threading import Thread
 
 
 count=0
@@ -59,13 +59,16 @@ while True:
     print(status_list)
 
     if status_list[0]==1 and status_list[1]==0:   #it means the object is going to exit
-        emailing.send_email(email_img)
-        clean_folder()
+        email_thread=Thread(target=emailing.send_email,args=(email_img,))#args should be a tuple
+        email_thread.daemon=True
+        clean_thread=Thread(target=clean_folder)
+        email_thread.daemon=True#multi threading is happening to prevent  any lag
+
+        email_thread.start()
+
+
     cv2.imshow('my frames',frames)
-
-
-
-
     if cv2.waitKey(1)==ord('q'):
         break
 video.release()
+clean_thread.start()
