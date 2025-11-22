@@ -1,3 +1,5 @@
+import os
+
 import cv2
 import time
 import emailing
@@ -11,6 +13,10 @@ time.sleep(1)
 first_frame=None
 status_list=[]
 
+def clean_folder():#last step it is to clear the files fter sending email
+    images = glob.glob('files/*png')
+    for images in images:
+        os.remove(images)
 
 
 while True:
@@ -40,18 +46,21 @@ while True:
             #we took last 2 elements of the list to get the exact time object leaves the frame as it enters 1 and leaves 0
             cv2.imwrite(f'files/{count}.png',frames)
             count+=1#all files are now written well with integeer names
+            images_list = glob.glob('files/*png')  # all png files are made into list
+            index = int(len(images_list)/2)
+            email_img = images_list[index]
+
     status_list.append(status)
     status_list = status_list[-2:]
 
 
-    images_list=glob.glob('files/*png')#all png files are made into list
-    index=int(len(images_list))
-    email_img=images_list[index]
+
 
     print(status_list)
 
     if status_list[0]==1 and status_list[1]==0:   #it means the object is going to exit
         emailing.send_email(email_img)
+        clean_folder()
     cv2.imshow('my frames',frames)
 
 
